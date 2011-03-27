@@ -21,12 +21,13 @@ wormhole:
 		$(NODE_WAF) build && \
 		cd .. && \
 		cp build/default/whBindings.node $(MODULE_LIB_DIR) && \
-		rm -rf build
+		rm -rf build src/.lock-wscript
 
 # Build the msgpack bindings
 msgpack:
 	cd support/msgpack && make && \
-	cp build/default/mpBindings.node $(MODULE_LIB_DIR)
+	cp build/default/mpBindings.node $(MODULE_LIB_DIR) && \
+	make clean
 
 clean:
 	rm -rf build lib/mpBindings.node lib/whBindings.node && \
