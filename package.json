@@ -1,0 +1,23 @@
+{
+  "name": "wormhole",
+  "description": "A MessagePack based message passing parser for Node.JS",
+  "version": "0.1.0",
+  "homepage": "http://aikar.co/wormhole",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aikar/wormhole.git"
+  },
+  "author": "Aikar <aikar@aikar.co> (http://aikar.co)",
+  "main": "lib/wormhole.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "runTests.js",
+    "preinstall": "make",
+    "preuninstall": "make clean"
+  },
+  "engines": {
+    "node": ">=4 || 5"
+  }
+}
