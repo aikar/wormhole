@@ -4,7 +4,7 @@ NODE_SRC_DIR ?= $(HOME)/src/node
 CFLAGS ?= -g -Wall
 CXXFLAGS ?= -g -Wall
 
-MODULE_LIB_DIR = "$CWD/lib"
+MODULE_LIB_DIR = $(CWD)/lib
 # We need to build position-independent code regardless of platform
 CFLAGS += -fPIC
 CXXFLAGS += -fPIC
@@ -18,17 +18,17 @@ all: msgpack wormhole
 wormhole:
 	cd src && \
 		$(NODE_WAF) configure && \
-		$(NODE_WAF) build \
+		$(NODE_WAF) build && \
 		cd .. && \
-		cp build/default/whBindings.node $MODULE_LIB_DIR && \
+		cp build/default/whBindings.node $(MODULE_LIB_DIR) && \
 		rm -rf build
 
 # Build the msgpack bindings
 msgpack:
 	cd support/msgpack && make && \
-	cp build/default/mpBindings.node $MODULE_LIB_DIR && \
-	make clean
+	cp build/default/mpBindings.node $(MODULE_LIB_DIR)
 
 clean:
-	cd support/msgpack && (make clean || true) && \
-	rm -rf build
+	rm -rf build lib/mpBindings.node lib/whBindings.node && \
+	rm -f src/.lock-wscript && \
+	cd support/msgpack && (make clean || true)

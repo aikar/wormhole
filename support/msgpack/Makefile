@@ -38,5 +38,5 @@ tags:
 			ctags -L - -a
 
 clean:
-	cd deps/msgpack && (make distclean || true)
-	rm -fr deps/msgpack/dist build
+	rm -fr deps/msgpack/dist build && \
+	cd deps/msgpack && (test -f Makefile && make maintainer-clean || true)
