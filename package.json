@@ -14,7 +14,7 @@
   },
   "scripts": {
     "test": "runTests.js",
-    "preinstall": "make",
+    "preinstall": "make makelibs",
     "preuninstall": "make clean"
   },
   "engines": {

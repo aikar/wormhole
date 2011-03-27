@@ -26,22 +26,45 @@
 using namespace v8;
 using namespace node;
 
+/**
+ * Scans a buffer looking for the header start symbol and then array or null
+ * array(headstart, length)
+ * or array(headstart, null) if found head but not enough data for length (rare)
+ *
+ * Null = bad data (header was long enough but contained no start symbols)
+ */
 static Handle<Value> wh_getlength(const Arguments &args) {
     HandleScope scope;
 
     Local<Object> buf = args[0]->ToObject();
-    uint32_t iReturnValue = 0;
-    if (Buffer::Length(buf) >= 6) {
+    uint32_t len = 0;
+
+    Local<Array> result = Array::New(2);
+
+    size_t buflen = Buffer::Length(buf);
+    
+    // the js side should enforce the 2 min
+    if (buflen >= 2) {
         char* data = Buffer::Data(buf);
-        if ((unsigned char)data[0] == 0xFF && (unsigned char)data[1] == 0x0F) {
-            iReturnValue = le32toh(*(uint32_t*)(data+2));
-        } else {
-            iReturnValue = -1;
+        for (size_t i = 0; i < buflen - 1; i++) {
+            if ((unsigned char) data[i]   == 0xFF &&
+                (unsigned char) data[i+1] == 0x0F) {
+                result->Set(Number::New(0), Uint32::New(i));
+                if (i+6 <= buflen) {
+                    len = le32toh(*(uint32_t*)(data + i + 2));
+                    result->Set(Number::New(1), Uint32::New(len));
+                } else {
+                    result->Set(Number::New(1), Null());
+                }
+                return scope.Close(result);
+            }
         }
     }
-    return scope.Close(Integer::New(iReturnValue));
+    return scope.Close(Null());
 }
-
+/**
+ * Builds header with 0xFF0x0F32bitlen
+ */
 static Handle<Value> wh_buildheader(const Arguments &args) {
     HandleScope scope;
 
@@ -55,7 +78,9 @@ static Handle<Value> wh_buildheader(const Arguments &args) {
     *(uint32_t*)(buf+2) = htole32(len);
     return scope.Close(bp->handle_);
 }
-
+/**
+ * Exports the functions
+ */
 extern "C" void init(Handle<Object> target) {
     HandleScope scope;
 

@@ -38,5 +38,5 @@ tags:
 			ctags -L - -a
 
 clean:
-	rm -fr deps/msgpack/dist build && \
+	rm -fr deps/msgpack/dist build src/.lock-wscript && \
 	cd deps/msgpack && (test -f Makefile && make maintainer-clean || true)
