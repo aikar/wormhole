@@ -12,17 +12,18 @@ var dump = require('sys').inspect;
 
 net.createServer(function(conn) {
     wormhole(conn, function(msg) {
-        console.log("SERVER: Got line: ", dump(msg));
+        console.log("SERVER: Got message: ", dump(msg));
         conn.write({result: parseInt(msg.input) + 10});
     });
-}).listen(9911, function() {
+}).listen(function() {
   console.log("Server listening");
   
   // Client
-  var client = net.createConnection(9911)
+  var client = net.createConnection(this.address().port)
   client.on('connect', function() {
     console.log("Client connected to server");
     wormhole(client, function(msg) {
+      console.log("CLIENT: Got message: ", dump(msg));
       console.log("Server responded to client with: ", msg.result);
     });
     
