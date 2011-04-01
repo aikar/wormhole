@@ -39,7 +39,13 @@ Ensure a directory named `node_modules` exists.
         - `git submodule update`
      - As a plain clone:
         - `git clone git://github.com/aikar/wormhole node_modules/wormhole`
-    
+
+After installing from GIT, you must compile the libraries:
+
+  - `make makelibs`
+  
+NPM will automatically run that command for you.
+
 ## Usage
 To use Wormhole, simply require it and pass it an instance of `net.Stream`
 and a callback for messages.
