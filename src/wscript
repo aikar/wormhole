@@ -13,5 +13,8 @@ def build(ctx):
     t = ctx.new_task_gen('cxx', 'shlib', 'node_addon')
     t.target = 'whBindings'
     t.source = 'wormhole.cc'
-
+    t.includes = ['../support/msgpack/dist/include', '../support']
+    t.lib = ['msgpack']
+    t.libpath = ['../support/msgpack/dist/lib']
+    
 # vim:ts=4 sw=4 et filetype=python

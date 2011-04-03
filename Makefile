@@ -15,25 +15,27 @@ export CFLAGS CXXFLAGS
 all: msgpack wormhole
 
 #build libs then clean up - for NPM
-makelibs: msgpack wormhole cleanbuild
+makelibs: wormhole cleanbuild
 
-# Build binary packing helpers.
-wormhole:
+# Build Wormhole
+wormhole: msgpack
 	cd src && \
-		$(NODE_WAF) configure && \
-		$(NODE_WAF) build && \
-		cd .. && \
-		cp build/default/whBindings.node $(MODULE_LIB_DIR)
+		$(NODE_WAF) configure build && \
+		cp ../build/default/whBindings.node $(MODULE_LIB_DIR)
 
-# Build the msgpack bindings
+# Build the msgpack lib
 msgpack:
-	cd support/msgpack && make && \
-	cp build/default/mpBindings.node $(MODULE_LIB_DIR)
+	cd support/msgpack && \
+		mkdir -p dist && \
+		(test -f Makefile || ./configure --enable-static --disable-shared \
+			--prefix=$(PWD)/support/msgpack/dist ) && \
+		make 1>/dev/null && make install 1>/dev/null
 	
 cleanbuild:
-	rm -rf build src/.lock-wscript && \
-	cd support/msgpack && (make clean || true)
+	rm -rf build src/.lock-wscript support/msgpack/dist && \
+	cd support/msgpack && \
+	(test -f Makefile && make maintainer-clean || true)
 	
 clean: cleanbuild
-	rm -f lib/mpBindings.node lib/whBindings.node
+	rm -f lib/whBindings.node
 	

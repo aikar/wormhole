@@ -21,10 +21,72 @@
 #include <v8.h>
 #include <node.h>
 #include <node_buffer.h>
+#include <node-msgpack.h>
+#include <msgpack.hpp>
 #include <endian.h>
 
 using namespace v8;
 using namespace node;
+
+
+
+
+
+ msgpack::unpacker pac;
+
+    // feeds the buffer.
+    pac.reserve_buffer(buffer.size());
+    memcpy(pac.buffer(), buffer.data(), buffer.size());
+    pac.buffer_consumed(buffer.size());
+
+    // now starts streaming deserialization.
+    msgpack::unpacked result;
+    while(pac.next(&result)) {
+        std::cout << result.get() << std::endl;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Scans a buffer looking for the header start symbol and then array or null
