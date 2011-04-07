@@ -21,131 +21,91 @@
 #include <v8.h>
 #include <node.h>
 #include <node_buffer.h>
-#include <node-msgpack.h>
-#include <msgpack.hpp>
 #include <endian.h>
+#include <node-msgpack.h>
 
 using namespace v8;
 using namespace node;
 
-
-
-
-
- msgpack::unpacker pac;
-
-    // feeds the buffer.
-    pac.reserve_buffer(buffer.size());
-    memcpy(pac.buffer(), buffer.data(), buffer.size());
-    pac.buffer_consumed(buffer.size());
-
-    // now starts streaming deserialization.
-    msgpack::unpacked result;
-    while(pac.next(&result)) {
-        std::cout << result.get() << std::endl;
+static v8::Persistent<v8::FunctionTemplate> constructor_template;
+class Wormhole : public ObjectWrap {
+    public:
+    // Actual Constructor when object is built in Wormhole::New
+    Wormhole(Handle<Object> wrapper) : ObjectWrap() {
+        Wrap(wrapper);
+        msgpack_unpacker_init(&unpacker, MSGPACK_UNPACKER_INIT_BUFFER_SIZE);
+        msgpack_unpacked_init(&result);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Scans a buffer looking for the header start symbol and then array or null
- * array(headstart, length)
- * or array(headstart, null) if found head but not enough data for length (rare)
- *
- * Null = bad data (header was long enough but contained no start symbols)
- */
-static Handle<Value> wh_getlength(const Arguments &args) {
-    HandleScope scope;
-
-    Local<Object> buf = args[0]->ToObject();
-    uint32_t len = 0;
-
-    Local<Array> result = Array::New(2);
-
-    size_t buflen = Buffer::Length(buf);
+    ~Wormhole() {
+        msgpack_unpacker_destroy(&unpacker);
+        msgpack_unpacked_destroy(&result);
+    }
+    // get a new Wormhole() and wrap it inside of this
+    static Handle<Value> New(const Arguments &args) {
+        HandleScope scope;
+        Wormhole* wormhole;
+        wormhole = new Wormhole(args.This());
+        return args.This();
+    }
     
-    // the js side should enforce the 2 min
-    if (buflen >= 2) {
-        char* data = Buffer::Data(buf);
-        for (size_t i = 0; i < buflen - 1; i++) {
-            if ((unsigned char) data[i]   == 0xFF &&
-                (unsigned char) data[i+1] == 0x0F) {
-                result->Set(Number::New(0), Uint32::New(i));
-                if (i+6 <= buflen) {
-                    len = le32toh(*(uint32_t*)(data + i + 2));
-                    result->Set(Number::New(1), Uint32::New(len));
-                } else {
-                    result->Set(Number::New(1), Null());
-                }
-                return scope.Close(result);
-            }
+    //Wormhole.prototype.unpack();
+    static Handle<Value> Unpack(const Arguments &args) {
+        HandleScope scope;
+        Wormhole* wormhole = ObjectWrap::Unwrap<Wormhole>(args.This());
+        
+        msgpack_unpacker* unpacker = &wormhole->unpacker;
+        if (args.Length() <= 0 || !Buffer::HasInstance(args[0])) {
+            return ThrowException(Exception::TypeError(
+                String::New("First argument must be a Buffer")));
         }
+        Local<Object> buf = args[0]->ToObject();
+        char* data = Buffer::Data(buf);
+        size_t len = Buffer::Length(buf);
+        
+        if(!msgpack_unpacker_reserve_buffer(unpacker, len)) {
+            return ThrowException(Exception::Error(
+                String::New("Could not reserve buffer")));
+        }
+        if (msgpack_unpacker_buffer_capacity(unpacker) < len) {
+            return ThrowException(Exception::Error(
+                String::New("buffer capacity is less than required length")));
+        }
+        memcpy(msgpack_unpacker_buffer(unpacker), data, len);
+        msgpack_unpacker_buffer_consumed(unpacker, len);
+        return scope.Close(True());
     }
-    return scope.Close(Null());
-}
-/**
- * Builds header with 0xFF0x0F32bitlen
- */
-static Handle<Value> wh_buildheader(const Arguments &args) {
+    static Handle<Value> GetResult(const Arguments &args) {
+        HandleScope scope;
+        Wormhole* wormhole = ObjectWrap::Unwrap<Wormhole>(args.This());
+        
+        msgpack_unpacker* unpacker = &wormhole->unpacker;
+        msgpack_unpacked* result   = &wormhole->result;
+        
+        if (msgpack_unpacker_next(unpacker, result)) {	        
+            return scope.Close(msgpack_to_v8(&(result->data)));
+        }
+        return scope.Close(Undefined());
+    }
+    
+    msgpack_unpacked result;
+    msgpack_unpacker unpacker;
+    private:
+    
+};
+
+
+extern "C" void
+init(Handle<Object> target) {
     HandleScope scope;
+    
+    Local<FunctionTemplate> t = FunctionTemplate::New(Wormhole::New);
+    constructor_template = Persistent<FunctionTemplate>::New(t);
+    constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
+    constructor_template->SetClassName(String::NewSymbol("Wormhole"));
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "unpack", Wormhole::Unpack);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getResult", Wormhole::GetResult);
+    target->Set( String::NewSymbol("wormhole"), constructor_template->GetFunction() );
+    NODE_SET_METHOD(target, "pack", pack);
+};
 
-    uint32_t len = args[0]->Uint32Value();
 
-    Buffer* bp = Buffer::New(6);
-    char* buf = Buffer::Data(bp->handle_);
-    // 0xFF 0x0F <size> header
-    *(buf) = 0xFF;
-    *(buf+1) = 0x0F;
-    *(uint32_t*)(buf+2) = htole32(len);
-    return scope.Close(bp->handle_);
-}
-/**
- * Exports the functions
- */
-extern "C" void init(Handle<Object> target) {
-    HandleScope scope;
-
-    NODE_SET_METHOD(target, "getlength", wh_getlength);
-    NODE_SET_METHOD(target, "buildheader", wh_buildheader);
-}

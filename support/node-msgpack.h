@@ -28,6 +28,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ================================================================================
  */
 
+#include <v8.h>
+#include <node.h>
+#include <node_buffer.h>
+#include <msgpack.h>
+#include <math.h>
+#include <vector>
+
+using namespace v8;
+using namespace node;
+
 // An exception class that wraps a textual message
 class MsgpackException {
     public:
@@ -149,7 +159,7 @@ class MsgpackCycle {
 static void
 v8_to_msgpack(Handle<Value> v8obj, msgpack_object *mo, msgpack_zone *mz,
               MsgpackCycle *mc) {
-    mc->check(v8obj);
+    //mc->check(v8obj);
 
     if (v8obj->IsUndefined() || v8obj->IsNull()) {
         mo->type = MSGPACK_OBJECT_NIL;
@@ -268,4 +278,37 @@ msgpack_to_v8(msgpack_object *mo) {
     default:
         throw MsgpackException("Encountered unknown MesssagePack object type");
     }
+}
+
+
+static Handle<Value>
+pack(const Arguments &args) {
+    HandleScope scope;
+
+    msgpack_packer pk;
+    MsgpackZone mz;
+    MsgpackSbuffer sb;
+    MsgpackCycle mc;
+
+    msgpack_packer_init(&pk, &sb._sbuf, msgpack_sbuffer_write);
+
+    for (int i = 0; i < args.Length(); i++) {
+        msgpack_object mo;
+
+        try {
+            v8_to_msgpack(args[0], &mo, &mz._mz, &mc);
+        } catch (MsgpackException e) {
+            return ThrowException(e.getThrownException());
+        }
+
+        if (msgpack_pack_object(&pk, mo)) {
+            return ThrowException(Exception::Error(
+                String::New("Error serializaing object")));
+        }
+    }
+
+    Buffer *bp = Buffer::New(sb._sbuf.size);
+    memcpy(Buffer::Data(bp->handle_), sb._sbuf.data, sb._sbuf.size);
+
+    return scope.Close(bp->handle_);
 }
