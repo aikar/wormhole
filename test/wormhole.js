@@ -48,59 +48,6 @@ vows.describe('Wormhole').addBatch({
       }
     }
   },
-  'Wormhole C++ Bindings': {
-    ' ': {
-      topic: function() {
-        return wh.wh.buildheader(3222);
-      },
-      'Builds proper header': function (header) {
-        var comparebuffer = buildSlowBuffer([0xFF, 0x0F, 0x96, 0x0C, 0, 0]);
-        assert.deepEqual(header, comparebuffer);
-      }
-    },
-    '  ': {
-      topic: function() {
-        return new Buffer([0, 0, 0, 0xFF, 0x0F, 0x96, 0x0C, 0, 0]);
-      },
-      'getlength returns correct head position + len with bad start data': function (header) {
-        var ret = wh.wh.getlength(header);
-        assert.deepEqual(ret, [3, 3222]);
-      }
-    },
-    '   ': {
-      topic: function() {
-        return new Buffer([0, 0, 0, 0xFF,0x0F]);
-      },
-      'getlength returns correct head position and null len': function (header) {
-        var ret = wh.wh.getlength(header);
-        assert.deepEqual(ret, [3, null]);
-      }
-    },
-    '    ': {
-      topic: function() {
-        return new Buffer([0, 0, 0, 0xF1,0x0F]);
-      },
-      'getlength returns null when no start found': function (header) {
-        var ret = wh.wh.getlength(header);
-        assert.deepEqual(ret, null);
-      }
-    }
-  },
-  'MessagePack C++ Bindings': {
-    ' ': {
-      topic: function() {
-        return wh.mp.pack({foo: 'bar'});
-      },
-      'Packs data correctly': function(packed) {
-        var comparebuffer = buildSlowBuffer([0x81, 0xa3, 0x66, 0x6f, 0x6f, 0xa3, 0x62, 0x61, 0x72]);
-        assert.deepEqual(packed, comparebuffer);
-      },
-      'Unpacks data correctly': function(packed) {
-        var unpacked = wh.mp.unpack(packed);
-        assert.deepEqual({foo: 'bar'}, unpacked);
-      }
-    }
-  },
   'Server / Client': {
     ' ': {
       topic: function() {
