@@ -159,7 +159,7 @@ class MsgpackCycle {
 static void
 v8_to_msgpack(Handle<Value> v8obj, msgpack_object *mo, msgpack_zone *mz,
               MsgpackCycle *mc) {
-    //mc->check(v8obj);
+    mc->check(v8obj);
 
     if (v8obj->IsUndefined() || v8obj->IsNull()) {
         mo->type = MSGPACK_OBJECT_NIL;

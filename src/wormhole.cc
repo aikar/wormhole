@@ -21,7 +21,6 @@
 #include <v8.h>
 #include <node.h>
 #include <node_buffer.h>
-#include <endian.h>
 #include <node-msgpack.h>
 
 using namespace v8;
@@ -49,7 +48,7 @@ class Wormhole : public ObjectWrap {
     }
     
     //Wormhole.prototype.unpack();
-    static Handle<Value> Unpack(const Arguments &args) {
+    static Handle<Value> Feed(const Arguments &args) {
         HandleScope scope;
         Wormhole* wormhole = ObjectWrap::Unwrap<Wormhole>(args.This());
         
@@ -81,16 +80,13 @@ class Wormhole : public ObjectWrap {
         msgpack_unpacker* unpacker = &wormhole->unpacker;
         msgpack_unpacked* result   = &wormhole->result;
         
-        if (msgpack_unpacker_next(unpacker, result)) {	        
-            return scope.Close(msgpack_to_v8(&(result->data)));
+        if (msgpack_unpacker_next(unpacker, result)) {
+            return scope.Close(msgpack_to_v8(&result->data));
         }
         return scope.Close(Undefined());
     }
-    
     msgpack_unpacked result;
     msgpack_unpacker unpacker;
-    private:
-    
 };
 
 
@@ -102,7 +98,7 @@ init(Handle<Object> target) {
     constructor_template = Persistent<FunctionTemplate>::New(t);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("Wormhole"));
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "unpack", Wormhole::Unpack);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "feed", Wormhole::Feed);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "getResult", Wormhole::GetResult);
     target->Set( String::NewSymbol("wormhole"), constructor_template->GetFunction() );
     NODE_SET_METHOD(target, "pack", pack);

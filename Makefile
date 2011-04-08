@@ -1,10 +1,9 @@
-CWD = $(shell pwd -P)
+
 NODE_WAF ?= node-waf
 NODE_SRC_DIR ?= $(HOME)/src/node
 CFLAGS ?= -g -Wall
 CXXFLAGS ?= -g -Wall
 
-MODULE_LIB_DIR = $(CWD)/lib
 # We need to build position-independent code regardless of platform
 CFLAGS += -fPIC
 CXXFLAGS += -fPIC
@@ -21,7 +20,7 @@ makelibs: wormhole cleanbuild
 wormhole: msgpack
 	cd src && \
 		$(NODE_WAF) configure build && \
-		cp ../build/default/whBindings.node $(MODULE_LIB_DIR)
+		cp ../build/default/whBindings.node ../lib
 
 # Build the msgpack lib
 msgpack:
