@@ -39,7 +39,9 @@ class Wormhole : public ObjectWrap {
         msgpack_unpacker_destroy(&unpacker);
         msgpack_unpacked_destroy(&result);
     }
-    // get a new Wormhole() and wrap it inside of this
+    /**
+     * Creates a new Wormhole and wraps it with a V8 object.
+     */
     static Handle<Value> New(const Arguments &args) {
         HandleScope scope;
         Wormhole* wormhole;
@@ -47,7 +49,14 @@ class Wormhole : public ObjectWrap {
         return args.This();
     }
     
-    //Wormhole.prototype.unpack();
+    //Wormhole.prototype.feed();
+    /**
+     * This is called to feed the MessagePack streaming deserializer a data
+     * chunk.
+     *
+     * @param args[0] Buffer - a Node.JS Buffer object.
+     * @return bool Did it feed successfully.
+     */
     static Handle<Value> Feed(const Arguments &args) {
         HandleScope scope;
         Wormhole* wormhole = ObjectWrap::Unwrap<Wormhole>(args.This());
@@ -61,18 +70,36 @@ class Wormhole : public ObjectWrap {
         char* data = Buffer::Data(buf);
         size_t len = Buffer::Length(buf);
         
+        /*char realdata[18] = {0x82, 0xa5, 0x69, 0x6e, 0x70, 0x75, 0x74, 0xcd, 0x01, 0x39, 0xa6, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x20};
+        char* data = (char*) &realdata;
+        size_t len = sizeof(realdata);*/
+        
+        size_t buffer_capacity = msgpack_unpacker_buffer_capacity(unpacker);
+        char* destbuf = msgpack_unpacker_buffer(unpacker);
+        
         if(!msgpack_unpacker_reserve_buffer(unpacker, len)) {
             return ThrowException(Exception::Error(
                 String::New("Could not reserve buffer")));
         }
-        if (msgpack_unpacker_buffer_capacity(unpacker) < len) {
+        
+        if (buffer_capacity < len) {
             return ThrowException(Exception::Error(
-                String::New("buffer capacity is less than required length")));
+                String::New("Buffer capacity is less than required length")));
         }
-        memcpy(msgpack_unpacker_buffer(unpacker), data, len);
+        
+        memcpy(destbuf, data, len);
         msgpack_unpacker_buffer_consumed(unpacker, len);
         return scope.Close(True());
     }
+    
+    //Wormhole.prototype.getResult();
+    /**
+     * This is called AFTER feeding, to read out unpacked results.
+     * This method should be continously called until undefined is returned.
+     *
+     * Segfaults on Ubuntu due to MessagePack library :(
+     * @return V8::Handle<Value>
+     */
     static Handle<Value> GetResult(const Arguments &args) {
         HandleScope scope;
         Wormhole* wormhole = ObjectWrap::Unwrap<Wormhole>(args.This());

@@ -33,7 +33,7 @@ var dump = require('sys').inspect;
 net.createServer(function(conn) {
     wormhole(conn, function(msg) {
         console.log("SERVER: Got message: ", dump(msg));
-        conn.write({result: parseInt(msg.input) + 10});
+        //conn.write({result: parseInt(msg.input) + 10});
     });
 }).listen(function() {
   console.log("Server listening");
