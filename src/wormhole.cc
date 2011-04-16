@@ -39,6 +39,7 @@ class Wormhole : public ObjectWrap {
         msgpack_unpacker_destroy(&unpacker);
         msgpack_unpacked_destroy(&result);
     }
+    
     /**
      * Creates a new Wormhole and wraps it with a V8 object.
      */
@@ -62,33 +63,29 @@ class Wormhole : public ObjectWrap {
         Wormhole* wormhole = ObjectWrap::Unwrap<Wormhole>(args.This());
         
         msgpack_unpacker* unpacker = &wormhole->unpacker;
+        
         if (args.Length() <= 0 || !Buffer::HasInstance(args[0])) {
             return ThrowException(Exception::TypeError(
                 String::New("First argument must be a Buffer")));
         }
+        
         Local<Object> buf = args[0]->ToObject();
         char* data = Buffer::Data(buf);
         size_t len = Buffer::Length(buf);
-        
-        /*char realdata[18] = {0x82, 0xa5, 0x69, 0x6e, 0x70, 0x75, 0x74, 0xcd, 0x01, 0x39, 0xa6, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x20};
-        char* data = (char*) &realdata;
-        size_t len = sizeof(realdata);*/
-        
-        size_t buffer_capacity = msgpack_unpacker_buffer_capacity(unpacker);
-        char* destbuf = msgpack_unpacker_buffer(unpacker);
         
         if(!msgpack_unpacker_reserve_buffer(unpacker, len)) {
             return ThrowException(Exception::Error(
                 String::New("Could not reserve buffer")));
         }
         
-        if (buffer_capacity < len) {
+        if (msgpack_unpacker_buffer_capacity(unpacker) < len) {
             return ThrowException(Exception::Error(
                 String::New("Buffer capacity is less than required length")));
         }
         
-        memcpy(destbuf, data, len);
+        memcpy(msgpack_unpacker_buffer(unpacker), data, len);
         msgpack_unpacker_buffer_consumed(unpacker, len);
+        
         return scope.Close(True());
     }
     
@@ -97,7 +94,6 @@ class Wormhole : public ObjectWrap {
      * This is called AFTER feeding, to read out unpacked results.
      * This method should be continously called until undefined is returned.
      *
-     * Segfaults on Ubuntu due to MessagePack library :(
      * @return V8::Handle<Value>
      */
     static Handle<Value> GetResult(const Arguments &args) {
@@ -112,6 +108,7 @@ class Wormhole : public ObjectWrap {
         }
         return scope.Close(Undefined());
     }
+    
     msgpack_unpacked result;
     msgpack_unpacker unpacker;
 };
