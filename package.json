@@ -1,8 +1,8 @@
 {
   "name": "wormhole",
-  "description": "A MessagePack based message passing system for Node.JS",
-  "keywords": ["message","pass","stream","parser","msgpack","messagepack","fast"],
-  "version": "0.1.0",
+  "description": "A MessagePack based streaming message queue system for Node.JS",
+  "keywords": ["message","queue", "pass","stream","parser","msgpack","messagepack","fast"],
+  "version": "1.0.0",
   "homepage": "http://aikar.co/wormhole",
   "repository": {
     "type": "git",

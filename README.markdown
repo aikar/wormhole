@@ -84,6 +84,23 @@ Wormhole uses the Vows test suite. please refer to vowsjs.org for installation.
 To run the tests, simply type ./runTests.js from the `node_modules/wormhole`
 folder.
 
+## Benchmarks
+There is a benchmark script in the examples folder to benchmark receiving messages.
+
+Sending bottlenecks the current benchmark, but on a 3.4ghz CPU, with a small
+message I was able to get up to 59k messages per second without circular
+reference checks on the encoding (sending) side. With circular reference
+checks I was getting 50k messages per second.
+
+On a large message, with a data set of 2.4k per message (encoded), I was getting
+20k messages per second. The large data test was not bottlenecked by sending
+and represents the actual throughput of receiving large messages, as it loaded
+a raw buffer for sending and didnt need to do the encoding.
+
+So in typical server setups with a proper implementation to use multiple
+processes to achieve multi core concurrency, Wormhole should be able to do
+125-150k messages per second for small to medium messages.
+
 ## Contributing
 If you would like to contribute, please fork the project on github, make changes
 and submit pull requests back to me.
