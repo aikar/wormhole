@@ -1,5 +1,5 @@
 var
-    wh = require('../lib/wormhole'),
+    Wormhole = require('../lib/wormhole'),
     net = require('net'),
     util = require('util'),
     spawn = require('child_process').spawn,
@@ -11,7 +11,7 @@ net.createServer(function(conn)
     var start = new Date();
     var i = 0
     var x = 0;
-    wh(conn, function(msg)
+    Wormhole(conn, function(e, msg)
     {
         x++;
         if (x > 1000) {

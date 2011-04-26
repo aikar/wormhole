@@ -1,8 +1,8 @@
 {
   "name": "wormhole",
-  "description": "A MessagePack based streaming message queue system for Node.JS",
-  "keywords": ["message","queue", "pass","stream","parser","msgpack","messagepack","fast"],
-  "version": "1.0.0",
+  "description": "A streaming message queue system for Node.JS focused on performance.",
+  "keywords": ["message","queue", "pass","stream","parser","fast", "json"],
+  "version": "2.0.0",
   "homepage": "http://aikar.co/wormhole",
   "repository": {
     "type": "git",
@@ -18,8 +18,6 @@
   },
   "scripts": {
     "test": "./runTest.js",
-    "preinstall": "make makelibs",
-    "preuninstall": "make clean"
   },
   "engines": {
     "node": ">=0.4.0"

@@ -25,13 +25,13 @@
 
 // Server
 var
-    wormhole = require('../lib/wormhole'),
+    Wormhole = require('../lib/wormhole'),
     net = require('net'),
     stdin = process.stdin;
 var dump = require('sys').inspect;
 
 net.createServer(function(conn) {
-    wormhole(conn, function(msg) {
+    Wormhole(conn, function(e, msg) {
         console.log("SERVER: Got message: ", dump(msg));
         conn.write({result: parseInt(msg.input) + 10});
     });
@@ -42,7 +42,7 @@ net.createServer(function(conn) {
   var client = net.createConnection(this.address().port)
   client.on('connect', function() {
     console.log("Client connected to server");
-    wormhole(client, function(msg) {
+    Wormhole(client, function(e, msg) {
       console.log("CLIENT: Got message: ", dump(msg));
       console.log("Server responded to client with: ", msg.result);
     });

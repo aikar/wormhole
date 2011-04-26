@@ -12,7 +12,7 @@ var commands = {
   },
   bar: function(num) {
     /*@doc: adds 1022 to arg1@*/
-    this.reply(num + 1022);
+    this.reply(parseInt(num) + 1022);
   },
   async: function(time) {
     /*@doc: arg1 is time in milliseconds to wait before responding@*/
@@ -24,8 +24,8 @@ var commands = {
 };
 
 net.createServer(function(conn) {
-    Wormhole(conn, function(msg) {
-      if (msg && msg.id && msg.call) {
+    Wormhole(conn, function(e, msg) {
+      if (!e && msg && msg.id && msg.call) {
         // We need a way for commands to be able to respond directly to the
         // message that called them, so lets make a "scope" with a reply func
         // to call the method with instead of redefining every command

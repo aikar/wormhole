@@ -12,7 +12,7 @@ setTimeout(function() {
     // connected
     var pendingReplies = {};
     var counter = 1;
-    Wormhole(client, function(msg) {
+    Wormhole(client, function(e, msg) {
       // server is informing us on connect what commands are avail
       if (msg.methods) {
         console.log("Type a command, followed by args, (eg: `foo foobar barbaz`)");
