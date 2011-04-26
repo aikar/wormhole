@@ -26,12 +26,12 @@ Ensure a directory named `node_modules` exists.
 
 ## Usage
 To use Wormhole, simply require it and pass it an instance of `net.Stream`
-and a callback for messages.
+and a callback for messages with function fn(error, message).
     
     var Wormhole = require('wormhole);
     
     net.createServer(function (client) {
-        Wormhole(client, function (msg) {
+        Wormhole(client, function (err, msg) {
             // All messages received from client, such as
             // {hello: 'World'}
         });
@@ -40,7 +40,7 @@ and a callback for messages.
         client.write({greet: 'Weclome to our server!'});
     }).listen(2122);
     var client = net.createConnection(2122, function() {
-        Wormhole(client, function (msg) {
+        Wormhole(client, function (err, msg) {
             // Messages received from server, such as
             // {greet: 'Welcome to our server!'}
         });
