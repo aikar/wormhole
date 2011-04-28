@@ -28,7 +28,7 @@ Ensure a directory named `node_modules` exists.
 To use Wormhole, simply require it and pass it an instance of `net.Stream`
 and a callback for messages with function fn(error, message).
     
-    var Wormhole = require('wormhole);
+    var Wormhole = require('wormhole');
     
     net.createServer(function (client) {
         Wormhole(client, function (err, msg) {
@@ -37,7 +37,7 @@ and a callback for messages with function fn(error, message).
         });
         
         // client.write now overloaded to encode data.
-        client.write({greet: 'Weclome to our server!'});
+        client.write({greet: 'Welcome to our server!'});
     }).listen(2122);
     var client = net.createConnection(2122, function() {
         Wormhole(client, function (err, msg) {
@@ -67,7 +67,7 @@ There is a benchmark script in the examples folder to benchmark receiving messag
 
 Sending bottlenecks the current benchmark, but on a 3.4ghz CPU, with a small
 message I was able to get up to 154k messages per second. This is on a single core,
-so when the systme is applied over multiple node processes you could see upwards
+so when the system is applied over multiple node processes you could see upwards
 to 400-500k messages per second on a quad core system.
 
 ## Contributing
