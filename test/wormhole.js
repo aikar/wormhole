@@ -53,7 +53,7 @@ vows.describe('Wormhole').addBatch({
       topic: function() {
         var self = this;
         var server = net.createServer(function(conn) {
-          wh(conn, function(msg) {
+          wh(conn, function(err, msg) {
             self.callback(null, msg, server);
           })
         });
@@ -73,13 +73,13 @@ vows.describe('Wormhole').addBatch({
       topic: function() {
         var self = this;
         var server = net.createServer(function(conn) {
-          wh(conn, function(msg) {
+          wh(conn, function(err, msg) {
             conn.write(msg);
           });
         });
         server.listen(function() {
           var client = net.createConnection(this.address().port, function() {
-            wh(client, function(msg) {
+            wh(client, function(err, msg) {
               self.callback(null, msg, server);
             });
             client.write({foo: 'bar'});
