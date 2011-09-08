@@ -25,5 +25,13 @@ if (process.argv.length <= 2) {
   // Add all tests to be ran.
   process.argv = process.argv.concat(fs.readdirSync('.'));
 }
+var splitter = process.platform === 'win32' ? ';' : ':';
+// add node_modules to global lookup path, hack it in there since require.paths was removed ;(
+var globalPath = require('path').resolve(process.execPath, '..', '..', 'lib', 'node_modules')
+var paths=(process.env.NODE_PATH || '').split(splitter);
+paths.push(globalPath)
+process.env.NODE_PATH = paths.join(splitter);
+// rebuild global paths.
+require('module')._initPaths();
 process.argv.push('--spec');
 require('vows/bin/vows'); // load the CLI script.
