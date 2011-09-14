@@ -34,4 +34,8 @@ process.env.NODE_PATH = paths.join(splitter);
 // rebuild global paths.
 require('module')._initPaths();
 process.argv.push('--spec');
+try {
 require('vows/bin/vows'); // load the CLI script.
+} catch(e) {
+  console.error("Vows not found, please `npm install vows -g` to install vows")
+}
