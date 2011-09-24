@@ -24,15 +24,15 @@ var commands = {
 };
 
 net.createServer(function(conn) {
-    Wormhole(conn, function(e, msg) {
-      if (!e && msg && msg.id && msg.call) {
+    Wormhole(conn, 'rpc', function(msg) {
+      if (msg && msg.id && msg.call) {
         // We need a way for commands to be able to respond directly to the
         // message that called them, so lets make a "scope" with a reply func
         // to call the method with instead of redefining every command
         // inside of the message handler.
         var reply = {
           reply: function(response) {
-            conn.write({reply: { id: msg.id, result: response}});
+            conn.write('rpc', {reply: { id: msg.id, result: response}});
           }
         };
         if (commands[msg.call] !== undefined) {
@@ -52,5 +52,5 @@ net.createServer(function(conn) {
       var funcSource = commands[method].toString();
       methodsArr.push([method, regex.exec(funcSource)[1]]);
     });
-    conn.write({methods: methodsArr});
+    conn.write('rpc', {methods: methodsArr});
 }).listen(9112);

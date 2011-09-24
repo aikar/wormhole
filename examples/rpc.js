@@ -12,7 +12,7 @@ setTimeout(function() {
     // connected
     var pendingReplies = {};
     var counter = 1;
-    Wormhole(client, function(e, msg) {
+    Wormhole(client, 'rpc', function(msg) {
       // server is informing us on connect what commands are avail
       if (msg.methods) {
         console.log("Type a command, followed by args, (eg: `foo foobar barbaz`)");
@@ -45,7 +45,7 @@ setTimeout(function() {
       // send the RPC request
       var rpcPayload = {call: cmd, args: args, id: mid};
       console.log("Sending RPC Request:", rpcPayload);
-      client.write(rpcPayload);
+      client.write('rpc', rpcPayload);
     })
   });
 }, 500);

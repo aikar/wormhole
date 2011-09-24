@@ -2,7 +2,7 @@
   "name": "wormhole",
   "description": "A streaming message queue system for Node.JS focused on performance.",
   "keywords": ["message","queue", "pass","stream","parser","fast", "json"],
-  "version": "2.0.1",
+  "version": "3.0.0",
   "homepage": "http://aikar.co/wormhole",
   "repository": {
     "type": "git",
@@ -14,10 +14,10 @@
     "lib": "lib"
   },
   "devDependencies": {
-    "vows": ""
+    "testrunner": ""
   },
   "scripts": {
-    "test": "node_modules/.bin/runtest"
+    "test": "runtest"
   },
   "engines": {
     "node": ">=0.4.0"

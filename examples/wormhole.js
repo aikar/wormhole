@@ -31,9 +31,9 @@ var
 var dump = require('sys').inspect;
 
 net.createServer(function(conn) {
-    Wormhole(conn, function(e, msg) {
+    Wormhole(conn, 'example', function(msg) {
         console.log("SERVER: Got message: ", dump(msg));
-        conn.write({result: parseInt(msg.input) + 10});
+        conn.write('example', {result: parseInt(msg.input) + 10});
     });
 }).listen(function() {
   console.log("Server listening");
@@ -42,7 +42,7 @@ net.createServer(function(conn) {
   var client = net.createConnection(this.address().port)
   client.on('connect', function() {
     console.log("Client connected to server");
-    Wormhole(client, function(e, msg) {
+    Wormhole(client, 'example', function(msg) {
       console.log("CLIENT: Got message: ", dump(msg));
       console.log("Server responded to client with: ", msg.result);
     });
@@ -51,7 +51,7 @@ net.createServer(function(conn) {
     process.stdin.on('data', function (data) {
       data = data.toString().trim();
       console.log("asking server to do 10 + " + data);
-      client.write({    
+      client.write('example', {    
         input: data
       })
     });

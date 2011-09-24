@@ -6,23 +6,25 @@ var
     stdin = process.openStdin();
     
 var dump = require('sys').inspect;
-net.createServer(function(conn)
-{
-    var start = new Date();
+var start;
     var i = 0
     var x = 0;
-    Wormhole(conn, function(e, msg)
+net.createServer(function(conn)
+{
+    if (!start) start = new Date()
+    Wormhole(conn, 'Benchmark', function(e, msg)
     {
-        x++;
-        if (x > 1000) {
+        if (x++ > 5000) {
             i++;
             x = 0;
-            var diff = (new Date() - start) / 1000;
+            var diff = (new Date() - start) / 5000;
             util.print("\rReceived " + i +"k messages - Rate: " + (i / diff).toFixed(1) + "k messages/sec");
         }
         //console.log("SERVER: Got line: ", dump(msg));
     }, "_msg", "server");
 }).listen(9911, function() {
-    // spawn the sender    
+    // spawn the senders   
     spawn(process.execPath, [__dirname + '/others/senddata.js']);
+    spawn(process.execPath, [__dirname + '/others/senddata.js']);
+    //spawn(process.execPath, [__dirname + '/others/senddata.js']);
 });
