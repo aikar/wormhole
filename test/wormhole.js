@@ -159,8 +159,15 @@ vows.describe('Wormhole').addBatch({
         
         var expectedMessages = {i:0, m:[
           {ch: 'CH3', msg: {foo: 1}},
+          {ch: '*1', msg: {foo: 1}},
           {ch: 'CH2', msg: {foo: 2}},
-          {ch: 'CH1', msg: {bar: 3}}
+          {ch: '*1', msg: {foo: 2}},
+          {ch: 'CH1', msg: {bar: 3}},
+          {ch: '*1', msg: {bar: 3}},
+          {ch: 'multi1', msg: 'test'},
+          {ch: 'multi2', msg: 'test'},
+          {ch: '*1', msg: 'test'},
+          {ch: '*2', msg: 'test'},
         ], assertions: []};
         var verify = function(ch, actual) {
           var i = expectedMessages.i;
@@ -181,6 +188,23 @@ vows.describe('Wormhole').addBatch({
           wh(conn, 'CH2', function(msg) {
             verify('CH2', msg);
           });
+          wh(conn, 'multi', function(msg) {
+            verify('multi1', msg);
+          });
+          wh(conn, 'multi', function(msg) {
+            verify('multi2', msg);
+          });
+          wh(conn, '*', function(msg) {
+            verify('*1', msg);
+            if (msg != 'test') {
+              return true;
+            } else {
+              return false;
+            }
+          });
+          wh(conn, '*', function(msg) {
+            verify('*2', msg);
+          });
           wh(conn, 'DONE', function(msg) {
             fired = true;
             self.callback(null, expectedMessages);
@@ -200,13 +224,14 @@ vows.describe('Wormhole').addBatch({
             client.write('CH3', {foo: 1});
             client.write('CH2', {foo: 2});
             client.write('CH1', {bar: 3});
+            client.write('multi', 'test');
             client.write('DONE', 'DONE');
             client.end()
           })
         });
       },
       'Sends correct messages to correct channels': function(expectedMessages) {
-        assert.equal(expectedMessages.i, 3, "Should of executed 3 messages")
+        assert.equal(expectedMessages.i, expectedMessages.m.length, "Should of received " + expectedMessages.m.length + " messages, got " + expectedMessages.i)
         expectedMessages.assertions.forEach(function(art) {
           assert.deepEqual(art[0], art[1], art[2]);
         });
