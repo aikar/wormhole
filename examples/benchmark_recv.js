@@ -6,11 +6,12 @@ var
     stdin = process.openStdin();
     
 var dump = require('sys').inspect;
-net.createServer(function(conn)
-{
     var start = new Date();
     var i = 0
     var x = 0;
+
+net.createServer(function(conn)
+{
     Wormhole(conn, function(e, msg)
     {
         x++;
@@ -24,5 +25,6 @@ net.createServer(function(conn)
     }, "_msg", "server");
 }).listen(9911, function() {
     // spawn the sender    
+    spawn(process.execPath, [__dirname + '/others/senddata.js']);
     spawn(process.execPath, [__dirname + '/others/senddata.js']);
 });
