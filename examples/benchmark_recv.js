@@ -3,16 +3,22 @@ var
     net = require('net'),
     util = require('util'),
     spawn = require('child_process').spawn,
+    fork = require('child_process').fork;
     stdin = process.openStdin();
     
-var dump = require('sys').inspect;
+var dump = require('util').inspect;
 var start;
     var i = 0
     var x = 0;
-net.createServer(function(conn)
-{
+
     if (!start) start = new Date()
-    Wormhole(conn, 'Benchmark', function(e, msg)
+    
+
+    // spawn the senders   
+    Wormhole(fork(__dirname + '/others/senddata.js'), 'Benchmark', count, "_msg", "server");
+    Wormhole(fork(__dirname + '/others/senddata.js'), 'Benchmark', count, "_msg", "server");
+    
+    function count(msg)
     {
         if (x++ > 5000) {
             i++;
@@ -21,10 +27,5 @@ net.createServer(function(conn)
             util.print("\rReceived " + i +"k messages - Rate: " + (i / diff).toFixed(1) + "k messages/sec");
         }
         //console.log("SERVER: Got line: ", dump(msg));
-    }, "_msg", "server");
-}).listen(9911, function() {
-    // spawn the senders   
-    spawn(process.execPath, [__dirname + '/others/senddata.js']);
-    spawn(process.execPath, [__dirname + '/others/senddata.js']);
-    //spawn(process.execPath, [__dirname + '/others/senddata.js']);
-});
+    }
+
