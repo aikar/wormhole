@@ -10,10 +10,10 @@ if (!process.argv[2]) {
   
   var start = new Date()
   function count() {
-    if (x++ > 5000) {
+    if (x++ > 1000) {
       i++;
       x = 0;
-      var diff = (new Date() - start) / 5000;
+      var diff = (new Date() - start) / 1000;
       util.print("\rReceived " + i +"k messages - Rate: " + (i / diff).toFixed(1) + "k messages/sec");
     }
   }
