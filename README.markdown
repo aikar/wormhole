@@ -165,7 +165,7 @@ you will likely always want to return true if you know youve processed the messa
 2.x introduced the node style fn(err, ...) callback style. This has been removed
 in 3.x and gone back to fn(msg) style, with errors now firing on their own channel.
 
-All errors will fire on the `_error__` channel, so listen like this:
+All errors will fire on the `__error__` channel, so listen like this:
 
     Wormhole(stream, '__error__', function(err) {
         console.error("Error received: ", err.msg);
