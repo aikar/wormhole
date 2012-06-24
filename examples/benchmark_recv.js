@@ -5,7 +5,7 @@ var
     spawn = require('child_process').spawn,
     stdin = process.openStdin();
     
-var dump = require('sys').inspect;
+var dump = require('util').inspect;
 var start;
     var i = 0
     var x = 0;

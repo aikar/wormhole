@@ -3,7 +3,7 @@ var
   net = require('net'),
   stdin = process.openStdin();
   
-var dump = require('sys').inspect;
+var dump = require('util').inspect;
 
 var SEND_PER_TICK = 10;
 

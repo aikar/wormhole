@@ -2,7 +2,7 @@ var
     Wormhole = require('../../lib/wormhole'),
     net = require('net');
     
-var dump = require('sys').inspect;
+var dump = require('util').inspect;
 
 
 var commands = {
