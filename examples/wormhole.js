@@ -28,7 +28,7 @@ var
     Wormhole = require('../lib/wormhole'),
     net = require('net'),
     stdin = process.stdin;
-var dump = require('sys').inspect;
+var dump = require('util').inspect;
 
 net.createServer(function(conn) {
     Wormhole(conn, 'example', function(msg) {
