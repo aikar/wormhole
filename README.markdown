@@ -1,5 +1,7 @@
 # Wormhole
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/aikar/wormhole.svg)](https://greenkeeper.io/)
+
 ## About
 Wormhole is a message passing stream parser for Node.JS.
 
